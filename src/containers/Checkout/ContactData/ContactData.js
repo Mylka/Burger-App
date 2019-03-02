@@ -86,22 +86,25 @@ class ContactData extends Component {
                         { value: 'cheapest', displayValue: 'Cheapest' }
                     ]
                 },
-                value: ''
+                value: 'cheapest',
+                validation: {},
+                valid: true
             },
         },
-        loading: false
+        loading: false,
+        formIsValid: false
     }
 
-    checkValidity(value, rules){
+    checkValidity(value, rules) {
         let isValid = true;
-        
-        if(rules.required) {
+
+        if (rules.required) {
             isValid = value.trim() !== '' && isValid
         }
-        if(rules.minLength){
+        if (rules.minLength) {
             isValid = value.length >= rules.minLength && isValid
         }
-        if(rules.maxLength){
+        if (rules.maxLength) {
             isValid = value.length <= rules.maxLength && isValid
         }
 
@@ -114,9 +117,9 @@ class ContactData extends Component {
 
         this.setState({ loading: true })
         const formData = {}
-        for(let formElementIdentifier in this.state.orderForm){
+        for (let formElementIdentifier in this.state.orderForm) {
             formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value
-         }
+        }
         const order = {
             ingredients: this.props.ingredients,
             price: this.props.price,
@@ -146,8 +149,13 @@ class ContactData extends Component {
         updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
         updatedFormElement.touched = true;
         updatedOrderForm[inputIdentifier] = updatedFormElement;
-        console.log(updatedFormElement)
-        this.setState({ orderForm: updatedOrderForm })
+
+        let formIsValid = true;
+        for (let inputIdentifier in updatedOrderForm){
+            formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid
+        }
+
+            this.setState({ orderForm: updatedOrderForm, formIsValid: formIsValid })
     }
 
     render() {
@@ -173,7 +181,7 @@ class ContactData extends Component {
                         touched={formElement.config.touched}
                         changed={(event) => this.inputChangeHandler(event, formElement.id)} />
                 ))}
-                <Button buttonType="Success">ORDER</Button>
+                <Button buttonType="Success" disabled={!this.state.formIsValid}>ORDER</Button>
             </form>
         );
 
